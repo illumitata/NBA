@@ -25,7 +25,7 @@ players_stats_eu <- read.csv("./data/Players.csv", header = TRUE)
 #    wrong prediction of position. (Don't be Flash, don't mess the timelines)
 #
 # Now it's time to take some data out.
-picked_year = 1980
+picked_year = 1996
 seasons_stats <- seasons_stats[which(seasons_stats$Year >= 1980),]
 seasons_stats <- seasons_stats[which(seasons_stats$Year == picked_year),]
 
@@ -50,20 +50,44 @@ seasons_stats <- seasons_stats[ , !(names(seasons_stats) %in% drop_columns)]
 seasons_stats$Height <- players_stats_eu$height[match(seasons_stats$Player, players_stats_eu$Player)]
 seasons_stats$Weight <- players_stats_eu$weight[match(seasons_stats$Player, players_stats_eu$Player)]
 
-# And replace NA's with specific values according to column type.
-# Pretty obscure way, loosing classes. However we can remake them at any time.
-seasons_stats <- data.frame(apply(seasons_stats, 
-                                  MARGIN = c(1,2),
-                                  FUN = function(x) {
-                                    if(is.na(x)) {
-                                      if(class(x) == "numeric") {
-                                        x <- 0.0
-                                      }
-                                      else {
-                                        x <- 0
-                                      }
-                                    }
-                                    else {
-                                      x <- x
-                                    }
-                                  }))
+# And replace NA's with 0's.
+seasons_stats[is.na(seasons_stats)] <- 0
+
+# Now let's think what we really want from our dataset.
+# Total numbers of rebounds or assists are misleading. Some short players can grab more boards
+# than centers just because they played more games that season.It's time to make some avg and
+# clean up the data to use just the things that matter.
+# We taking basic stats: rebounds, assists, steals, blocks, turnovers, points.
+# Then we calculating averages based on how many games where played by player.
+seasons_stats$TRBavg <- seasons_stats$TRB / seasons_stats$G
+seasons_stats$ASTavg <- seasons_stats$AST / seasons_stats$G
+seasons_stats$STLavg <- seasons_stats$STL / seasons_stats$G
+seasons_stats$BLKavg <- seasons_stats$BLK / seasons_stats$G
+seasons_stats$TOVavg <- seasons_stats$TOV / seasons_stats$G
+seasons_stats$PTSavg <- seasons_stats$PTS / seasons_stats$G
+
+seasons_stats.cleaned <- select(seasons_stats, 
+                                Player, 
+                                Pos,
+                                Height,
+                                Weight,
+                                PTSavg,
+                                TRBavg,
+                                ASTavg,
+                                STLavg,
+                                BLKavg,
+                                TOVavg,
+                                TS.,
+                                FG.,
+                                X3P.,
+                                X2P.,
+                                eFG.,
+                                FT.)
+
+# Now we have clean data from picked season. So.. what are we looking for? It's time to make classes!
+# We will be looking for players classified by Position (POS). Let's change column a little bit.
+desired_position = "PG"
+seasons_stats.cleaned$Pos <- as.character(seasons_stats.cleaned$Pos)
+seasons_stats.cleaned$Pos[seasons_stats.cleaned$Pos != desired_position] <- "no"
+seasons_stats.cleaned$Pos[seasons_stats.cleaned$Pos == desired_position] <- "yes"
+# seasons_stats.cleaned$Pos <- as.factor(seasons_stats.cleaned$Pos)
