@@ -601,15 +601,20 @@ accuracy.hclust
 # FPR = FP / (FP + TN)
 # TNR = TN / (TN + FP)
 # FNR = FN / (FN + TP)
-TP.bayes <- matrix_error.bayes[2,2]
-TN.bayes <- matrix_error.bayes[1,1]
-FP.bayes <- matrix_error.bayes[2,1]
-FN.bayes <- matrix_error.bayes[1,2]
+matrix_error.bayes
+
+TP.bayes <- matrix_error.bayes[2,2] # +- 4
+TN.bayes <- matrix_error.bayes[1,1] # +- 4
+FP.bayes <- matrix_error.bayes[2,1] # +- 4
+FN.bayes <- matrix_error.bayes[1,2] # +- 4
 
 TPR.bayes = TP.bayes / (TP.bayes + FN.bayes)
 FPR.bayes = FP.bayes / (FP.bayes + TN.bayes)
 TNR.bayes = TN.bayes / (TN.bayes + FP.bayes)
 FNR.bayes = FN.bayes / (FN.bayes + TP.bayes)
+
+# Distance from ideal method
+distance.bayes = sqrt(((0 - FPR.bayes) ^ 2) + ((1 - TPR.bayes) ^ 2))
 
 TP.ctree <- matrix_error.ctree[2,2]
 TN.ctree <- matrix_error.ctree[1,1]
@@ -621,6 +626,9 @@ FPR.ctree = FP.ctree / (FP.ctree + TN.ctree)
 TNR.ctree = TN.ctree / (TN.ctree + FP.ctree)
 FNR.ctree = FN.ctree / (FN.ctree + TP.ctree)
 
+# Distance from ideal method
+distance.ctree = sqrt(((0 - FPR.ctree) ^ 2) + ((1 - TPR.ctree) ^ 2))
+
 TP.knn <- matrix_error.knn[2,2]
 TN.knn <- matrix_error.knn[1,1]
 FP.knn <- matrix_error.knn[2,1]
@@ -631,6 +639,9 @@ FPR.knn = FP.knn / (FP.knn + TN.knn)
 TNR.knn = TN.knn / (TN.knn + FP.knn)
 FNR.knn = FN.knn / (FN.knn + TP.knn)
 
+# Distance from ideal method
+distance.knn = sqrt(((0 - FPR.knn) ^ 2) + ((1 - TPR.knn) ^ 2))
+
 TP.hclust <- matrix_error.hclust[2,2]
 TN.hclust <- matrix_error.hclust[1,1]
 FP.hclust <- matrix_error.hclust[2,1]
@@ -640,6 +651,9 @@ TPR.hclust = TP.hclust / (TP.hclust + FN.hclust)
 FPR.hclust = FP.hclust / (FP.hclust + TN.hclust)
 TNR.hclust = TN.hclust / (TN.hclust + FP.hclust)
 FNR.hclust = FN.hclust / (FN.hclust + TP.hclust)
+
+# Distance from ideal method
+distance.hclust = sqrt(((0 - FPR.hclust) ^ 2) + ((1 - TPR.hclust) ^ 2))
 
 # more FP gives more FPR and decrease TNR etc.
 

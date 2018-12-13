@@ -56,7 +56,7 @@
 \pagestyle{fancy} % All pages have headers and footers
 \fancyhead{} % Blank out the default header
 \fancyfoot{} % Blank out the default footer
-\fancyhead[C]{ Gen-SAT $\bullet$ Listopad 2018 } % Custom header text
+\fancyhead[C]{ NBA $\bullet$ Grudzień 2018 } % Custom header text
 \fancyfoot[RO,LE]{\thepage} % Custom footer text
 
 \usepackage{titling} % Customizing the title section
@@ -66,6 +66,7 @@
 \usepackage{array}
 \usepackage{graphicx}
 \usepackage{subcaption}
+\usepackage{multirow}
 
 \usepackage{enumitem}
 \newenvironment{nscenter}
@@ -223,15 +224,67 @@ yes & 48 & 78 \\
 \end{table}
 
 \subsection{TP, FP, TN, FN, THC, TPR, FPR, NBA, UG i inne skróty}
-Wartości TP, FP, TN, FN odpowiadają odpowiednio Prawdziwie Pozytywnemu, Fałszywie pozytywnemu, Prawdziwie Negatywnemu oraz Fałszywie Negatywnemu zaklasyfikowaniu gracza na zadanej pozycji. Zakładamy, że szukamy PG, rozgrywających. Zatem TP odpowiada poprawnemu przydzielniu klasy yes dla gracza będącego na pozycji rozgrywającego, FP przydzieleniu klasy yes dla gracza występującego przykładowo jako niski skrzydłowy, TN przypisaniu no dla rzucającego obrońcy oraz FN przydzieleniu no dla gracza będącego rozgrywającym.
+Wartości TP, FP, TN, FN odpowiadają odpowiednio Prawdziwie Pozytywnemu, Fałszywie pozytywnemu, Prawdziwie Negatywnemu oraz Fałszywie Negatywnemu zaklasyfikowaniu gracza na zadanej pozycji.
+Wyliczone zostały również wartości TPR, FPR, FNR oraz TNR (znane jako sensitivity, fall-out, miss rate oraz specificity).
+Zauważono również zależności między nimi:
+\[ FPR + TNR = 1 \]
+\[ TPR + FNR = 1 \]
 \\
-Na wykresie (Rysunek 2) przedstawione jest położenie klasyfikatorów w zależności od wyników FPR i TPR. Biorąc pod uwagę przemyślenia najlepszym klasyfikatorem wydaje się być NAZWA, gdyż znajduje się nabliżej założeń klasyfikatora idealnego.
+Wydzielono dwa rodzaje błędu:
+\begin{itemize}
+\item \textbf{Pierwszego rodzaju}\\
+Czyli FP, błąd polegający na odrzuceniu hipotezy zerowej, która w rzeczywistości nie jest fałszywa.
+\item \textbf{Drugiego rodzaju}\\
+Oznaczony przez FN, błąd polegający na nieodrzuceniu hipotezy zerowej, która jest w rzeczywistości fałszywa.
+\end{itemize}
+Zakładamy, że szukamy  rozgrywających. Zatem TP odpowiada poprawnemu przydzielniu klasy yes dla gracza będącego na pozycji rozgrywającego, FP przydzieleniu klasy yes dla gracza występującego przykładowo jako niski skrzydłowy, TN przypisaniu no dla rzucającego obrońcy oraz FN przydzieleniu no dla gracza będącego rozgrywającym.
+\\
+Oba błędy mają wpływ na wynik czynników TPR, FPR, FNR i TNR. Obserwacje można wyciągnąć już ze wzorów (literatura ,,Sensitivity and specificity''). Poniżej jednak przedstawiona zostanie tabelka (Tablica 5) wyjaśniająca zależności:
+
+\begin{table}[hbt!]
+\centering
+\caption{Zależności wynikające z błędów pierwszego i drugiego rodzaju}
+\begin{tabular}{cc|c|c|c|c|l}
+\cline{3-6}
+& & \multicolumn{4}{ c| }{Wartość} \\ \cline{3-6}
+& & TPR & FPR & FNR & TNR \\ \cline{1-6}
+\multicolumn{1}{ |c  }{\multirow{2}{*}{FP} } &
+\multicolumn{1}{ |c| }{$\uparrow$} & - & $\uparrow$ & - & $\downarrow$ &     \\ \cline{2-6}
+\multicolumn{1}{ |c  }{}                        &
+\multicolumn{1}{ |c| }{$\downarrow$} & - & $\downarrow$ & - & $\uparrow$ &     \\ \cline{1-6}
+\multicolumn{1}{ |c  }{\multirow{2}{*}{FN} } &
+\multicolumn{1}{ |c| }{$\uparrow$} & $\downarrow$ & - & $\uparrow$ & - \\ \cline{2-6}
+\multicolumn{1}{ |c  }{}                        &
+\multicolumn{1}{ |c| }{$\downarrow$} & $\uparrow$ & - & $\downarrow$ & - \\ \cline{1-6}
+\end{tabular}
+\end{table}
+
+\indent Osobistym przemyśleniem jest stwierdzenie, że błąd drugiego rodzaju (FN) jest bardziej ,,krzywdzący'' dla obserwowanego zbioru danych. Zaklasyfikowany w ten sposób gracz (czyli w tym przypadku rozgrywający) nie jest najczęściej przygotowany do innej roli na boisku niż dowodzenia drużyną. Natomiast popularną metodą w dzisiejszej koszykówce jest wystawianie niskiego skrzydłowego jako rozgrywającego, który może w ten sposób rozciągnąć grę, jednocześnie posiadając podobny zestaw umiejętności co rozgrywający. Zatem błąd pierwszego rodzaju nie jest koniecznie krzywdzący, gdyby jakaś drużyna starała się dobierać gracza na podstawie wyników klasyfikatora.
+
 \begin{figure}[hbt!]
   \centering
     \includegraphics[width=\linewidth]{plot_ROCspace.pdf}
   \caption{Porównanie sensitivity i false alarm dla klasyfikatorów.}
   \label{fig:coffee}
 \end{figure}
+
+\indent Na wykresie (Rysunek 2) przedstawione jest położenie klasyfikatorów w zależności od wyników FPR i TPR. Zakładając, że najlepszy klasyfikator nie popełnia błędów, idealna sytuacja zachodzi przy braku błędów. Znaczy to, że FP i FN są równe 0. Wtedy wartość TPR równa się 1, natomiast FPR wynosi 0. Zatem najlepszy klasyfikator znajduje się w punkcie (x = 0, y = 1), mówiąc potoczniej - w lewej górnej części wykresu. Odległości poszczególnych klasyfikatorów zostały obliczone i porównane (Tablica 6).
+
+\begin{table}[hbt!]
+\centering
+\caption{Odległość metody od współrzędnej (0,1) na Rysunku 2}
+\begin{tabular}{l*{4}{c}}
+Metoda & Odległość \\
+\hline
+Hierarchical Clustering & 0.2242859 \\
+kNN & 0.2753761 \\
+C4.5/ID3 & 0.3276394 \\
+Naive Bayes & 0.3620692 \\
+\end{tabular}
+\end{table}
+\newpage
+\indent Jeżeli zwracamy uwagę jedynie na liczby najlepszym rozwiązaniem wydają się być Hierarchical Clustering oraz kNN, ponieważ znajdują się nabliżej założeń klasyfikatora idealnego. Jednak biorąc pod uwagę stabliność (szczególnie w innych latach) algorytm kNN lub C4.5/ID3 wydaje się być lepiej przystosowany do zadania.
+
 %------------------------------------------------
 
 \section{Grupowanie metodą k-średnich}
@@ -246,7 +299,7 @@ Na wykresie (Rysunek 2) przedstawione jest położenie klasyfikatorów w zależn
   \caption{Metoda k-średnich : klastry oraz nałożona na nią liga, sezon 2017.}
   \label{fig:coffee}
 \end{figure}
-
+\newpage
 \subsection{Czy można to zrobić inaczej?}
 
 \indent Obserwując wyniki metody k-means, postanowione zostało znaleźenie skutecznego rozwiązania dla problemu klastrowania. Wspomniane wcześniej Grupowanie Hierarchiczne (Hierarchical Clustering) opiera się na dzieleniu obserwacji na klastry bazując na podobieństwach między nimi. Nie jest tutaj konieczne określenie ilości klastrów na początku działania. Zatem bardzo możliwe wydaje się znalezienie dwóch grup, które z założeń projektu powinny być łatwe do wydzielenia ze zbioru obserwacji. Do obliczeń potrzebnych w algorytmie  skorzystano z metody Połączeń Ward'a pod nazwą ward.D2. Korzysta ona z obserwacji, dzięki której nie jest wymagane podniesienie do kwadratu wszystkich odchyleń od punktów do centroidów. W procesie tworzy się pary zawierające pojedńcze obserwacje. Następnie pary klastrów są sukcesywnie łączone, aż do momentu gdy wszystkie klastry zostaną scalone w duży klaster zawierający podobne obiekty. Wyniki przedstawione zostały na Rysunku 4. Algorytm deprymuje pokrewną metodę k-średnich oraz prezentuje skuteczność zbliżoną do pozostałych metod (Rysunek 1).
@@ -259,7 +312,7 @@ Na wykresie (Rysunek 2) przedstawione jest położenie klasyfikatorów w zależn
 \end{figure}
 
 %------------------------------------------------
-
+\newpage
 \section{Reguły asocjacyjne}
 
 \indent Pomimo uproszczenia danych dwie wartości ,,above'', ,,bellow'' (powyżej i poniżej średnich ligowych) oraz wykluczeniu zbędnych lub powtarzających się, wyciągnięte z bazy reguły asocjacyjne można liczyć w setkach lub tysiącach. Wybrane zostały zatem tylko najbardziej interesujące z wysokim czynnikiem wiarygodności oraz wsparcia. Poniżej opisane kilka z nich:
@@ -269,8 +322,6 @@ Na wykresie (Rysunek 2) przedstawione jest położenie klasyfikatorów w zależn
 Zgodnie z założenieniami rozgrywający nie zdobywa wielu punktów oraz nie gra pod koszem przez swój wzrost i wagę (poniżej średniej Height, Weight, TRBavg oraz BLKavg). Opiera swoją grę na asystach i przechwytach. Odznacza się również dobrym \% z linii osobitych. Przykłady:
 \begin{itemize}
 	\item PTSavg=bellow \\ ASTavg=above\\ STLavg=above\\ BLKavg=bellow\\ X3P.=bellow \\ FT.=above \\
-	\item TRBavg=bellow \\ ASTavg=above \\ STLavg=above \\ X3P.=bellow \\ 
-	FT.=above \\
 	\item Height=bellow \\ ASTavg=above \\ X3P.=bellow \\ FT.=above
 \end{itemize}
 \end{itemize}
