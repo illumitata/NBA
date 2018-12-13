@@ -6,6 +6,7 @@ library(plyr)
 library(dplyr)
 library(ggplot2)
 library(ggpubr)
+library(gtable)
 library(datasets)
 require(graphics)
 library(e1071) # Naive Bayes
@@ -27,13 +28,20 @@ PC.two = 2
 # Use PCA data in Hierarchical Clustering
 use_PCA = 0
 
+####################################################
+# Helper means for some methods
+give_means <- function(x) {
+  mean_value <- mean(x, na.rm = TRUE)
+}
+####################################################
+
 # Loading data for project.
 # seasons_stats stands for csv file with stats of each player from each season.
 # players_stats stands for csv file with players info name, weight, height etc.
 # In EU file we can't find any data about position, instead we got converted
 # height and weight values to more suitable system for me.
-seasons_stats <- read.csv("./data/Seasons_Stats.csv", header = TRUE)
-players_stats_eu <- read.csv("./data/Players.csv", header = TRUE)
+seasons_stats <- read.csv("~/Studia/IntOblicz/projekt2/data/Seasons_Stats.csv", header = TRUE)
+players_stats_eu <- read.csv("~/Studia/IntOblicz/projekt2/data/Players.csv", header = TRUE)
 
 # Time for making things right. We got to pick some players based on these rules:
 # 1) From season 1980 up to max possible 2017. Why tho mane?
@@ -228,8 +236,85 @@ which_player.knn.positions_error <- count(which_player.knn.results, which_player
 ###################################################################
 ###################################################################
 ###################################################################
-# Association rules
+# Association rules #TODO
 
+# Prepare data with strings!
+# I come up with idea of ABOVE and BELOW avg of league for player stats.
+# Using helper means it is time to change some columns.
+
+seasons_stats.strings <- seasons_stats.cleaned
+
+seasons_stats.cleaned.numeric <- seasons_stats.cleaned[, 2:(ncol(seasons_stats.cleaned) - 1)]
+helper_means.avg <- sapply(seasons_stats.cleaned.numeric, give_means)
+helper_means.avg <- as.data.frame(helper_means.avg)
+
+seasons_stats.strings$Height[seasons_stats.strings$Height >= helper_means.avg["Height", ]] <- "above"
+seasons_stats.strings$Weight[seasons_stats.strings$Weight >= helper_means.avg["Weight", ]] <- "above"
+seasons_stats.strings$PTSavg[seasons_stats.strings$PTSavg >= helper_means.avg["PTSavg", ]] <- "above"
+seasons_stats.strings$TRBavg[seasons_stats.strings$TRBavg >= helper_means.avg["TRBavg", ]] <- "above"
+seasons_stats.strings$ASTavg[seasons_stats.strings$ASTavg >= helper_means.avg["ASTavg", ]] <- "above"
+seasons_stats.strings$STLavg[seasons_stats.strings$STLavg >= helper_means.avg["STLavg", ]] <- "above"
+seasons_stats.strings$BLKavg[seasons_stats.strings$BLKavg >= helper_means.avg["BLKavg", ]] <- "above"
+seasons_stats.strings$TOVavg[seasons_stats.strings$TOVavg >= helper_means.avg["TOVavg", ]] <- "above"
+seasons_stats.strings$TS.[seasons_stats.strings$TS. >= helper_means.avg["TS.", ]] <- "above"
+seasons_stats.strings$FG.[seasons_stats.strings$FG. >= helper_means.avg["FG.", ]] <- "above"
+seasons_stats.strings$X3P.[seasons_stats.strings$X3P. >= helper_means.avg["X3P.", ]] <- "above"
+seasons_stats.strings$X2P.[seasons_stats.strings$X2P. >= helper_means.avg["X2P.", ]] <- "above"
+seasons_stats.strings$eFG.[seasons_stats.strings$eFG. >= helper_means.avg["eFG.", ]] <- "above"
+seasons_stats.strings$FT.[seasons_stats.strings$FT. >= helper_means.avg["FT.", ]] <- "above"
+
+seasons_stats.strings$Height[seasons_stats.strings$Height < helper_means.avg["Height", ]] <- "bellow"
+seasons_stats.strings$Weight[seasons_stats.strings$Weight < helper_means.avg["Weight", ]] <- "bellow"
+seasons_stats.strings$PTSavg[seasons_stats.strings$PTSavg < helper_means.avg["PTSavg", ]] <- "bellow"
+seasons_stats.strings$TRBavg[seasons_stats.strings$TRBavg < helper_means.avg["TRBavg", ]] <- "bellow"
+seasons_stats.strings$ASTavg[seasons_stats.strings$ASTavg < helper_means.avg["ASTavg", ]] <- "bellow"
+seasons_stats.strings$STLavg[seasons_stats.strings$STLavg < helper_means.avg["STLavg", ]] <- "bellow"
+seasons_stats.strings$BLKavg[seasons_stats.strings$BLKavg < helper_means.avg["BLKavg", ]] <- "bellow"
+seasons_stats.strings$TOVavg[seasons_stats.strings$TOVavg < helper_means.avg["TOVavg", ]] <- "bellow"
+seasons_stats.strings$TS.[seasons_stats.strings$TS. < helper_means.avg["TS.", ]] <- "bellow"
+seasons_stats.strings$FG.[seasons_stats.strings$FG. < helper_means.avg["FG.", ]] <- "bellow"
+seasons_stats.strings$X3P.[seasons_stats.strings$X3P. < helper_means.avg["X3P.", ]] <- "bellow"
+seasons_stats.strings$X2P.[seasons_stats.strings$X2P. < helper_means.avg["X2P.", ]] <- "bellow"
+seasons_stats.strings$eFG.[seasons_stats.strings$eFG. < helper_means.avg["eFG.", ]] <- "bellow"
+seasons_stats.strings$FT.[seasons_stats.strings$FT. < helper_means.avg["FT.", ]] <- "bellow"
+
+seasons_stats.strings[] <- lapply(seasons_stats.strings, factor) # the "[]" keeps the dataframe structure
+col_names <- names(seasons_stats.strings)
+
+# Run method
+seasons_stats.string.stats <- seasons_stats.strings[c("Height", 
+                                                      "Weight", 
+                                                      "PTSavg",
+                                                      "TRBavg",
+                                                      "ASTavg",
+                                                      "STLavg",
+                                                      "BLKavg",
+                                                      "X3P.",
+                                                      "FT.",
+                                                      "Pos")]
+rules <- apriori(seasons_stats.string.stats,
+                 parameter = list(minlen = 2, 
+                                  maxlen = (ncol(seasons_stats.string.stats)),
+                                  supp=0.0099, conf=0.99),
+                 appearance = list(rhs=c("Pos=no", "Pos=yes"),
+                                   default="lhs"),
+                 control = list(verbose=F))
+rules.sorted <- sort(rules, by="lift")
+
+subset.matrix <- is.subset(rules.sorted, rules.sorted)
+subset.matrix[lower.tri(subset.matrix, diag=T)] <- FALSE
+redundant <- colSums(subset.matrix, na.rm=T) >= 1
+# which(redundant)
+rules.pruned <- rules.sorted[!redundant]
+inspect(rules.pruned)
+
+plot(rules.pruned)
+
+# dev.new()
+# plot(rules.pruned, method="graph", control=list(type="items"))
+
+# dev.new()
+# plot(rules.pruned, method="paracoord", control=list(reorder=TRUE))
 
 ###################################################################
 ###################################################################
@@ -239,43 +324,39 @@ which_player.knn.positions_error <- count(which_player.knn.results, which_player
 # k-means
 seasons_stats.log <- log(seasons_stats.cleaned[, 2:(ncol(seasons_stats.cleaned) - 1)])
 
-# Replace -/+Inf with means
-replace_inf <- function(x) {
-  x[is.infinite(x)] <- NA
-  replace_value <- mean(x, na.rm = TRUE)
-  x[is.na(x)] <- replace_value
-}
+# Replace -/+Inf with meansas
+seasons_stats.log$Height[is.infinite(seasons_stats.log$Height)] <- NA
+seasons_stats.log$Weight[is.infinite(seasons_stats.log$Weight)] <- NA
+seasons_stats.log$PTSavg[is.infinite(seasons_stats.log$PTSavg)] <- NA
+seasons_stats.log$TRBavg[is.infinite(seasons_stats.log$TRBavg)] <- NA
+seasons_stats.log$ASTavg[is.infinite(seasons_stats.log$ASTavg)] <- NA
+seasons_stats.log$STLavg[is.infinite(seasons_stats.log$STLavg)] <- NA
+seasons_stats.log$BLKavg[is.infinite(seasons_stats.log$BLKavg)] <- NA
+seasons_stats.log$TOVavg[is.infinite(seasons_stats.log$TOVavg)] <- NA
+seasons_stats.log$TS.[is.infinite(seasons_stats.log$TS.)] <- NA
+seasons_stats.log$FG.[is.infinite(seasons_stats.log$FG.)] <- NA
+seasons_stats.log$X3P.[is.infinite(seasons_stats.log$X3P.)] <- NA
+seasons_stats.log$X2P.[is.infinite(seasons_stats.log$X2P.)] <- NA
+seasons_stats.log$eFG.[is.infinite(seasons_stats.log$eFG.)] <- NA
+seasons_stats.log$FT.[is.infinite(seasons_stats.log$FT.)] <- NA
 
-helper_means <- sapply(seasons_stats.log, replace_inf)   # not generally a useful result
-helper_means <- as.data.frame(helper_means)
+helper_means.log <- sapply(seasons_stats.log, give_means)
+helper_means.log <- as.data.frame(helper_means.log)
 
-seasons_stats.log$Height[is.infinite(seasons_stats.log$Height)] <- helper_means["Height",]
-
-seasons_stats.log$Weight[is.infinite(seasons_stats.log$Weight)] <- helper_means["Weight",]
-
-seasons_stats.log$PTSavg[is.infinite(seasons_stats.log$PTSavg)] <- helper_means["PTSavg",]
-
-seasons_stats.log$TRBavg[is.infinite(seasons_stats.log$TRBavg)] <- helper_means["TRBavg",]
-
-seasons_stats.log$ASTavg[is.infinite(seasons_stats.log$ASTavg)] <- helper_means["ASTavg",]
-
-seasons_stats.log$STLavg[is.infinite(seasons_stats.log$STLavg)] <- helper_means["STLavg",]
-
-seasons_stats.log$BLKavg[is.infinite(seasons_stats.log$BLKavg)] <- helper_means["BLKavg",]
-
-seasons_stats.log$TOVavg[is.infinite(seasons_stats.log$TOVavg)] <- helper_means["TOVavg",]
-
-seasons_stats.log$TS.[is.infinite(seasons_stats.log$TS.)] <- helper_means["TS.",]
-
-seasons_stats.log$FG.[is.infinite(seasons_stats.log$FG.)] <- helper_means["FG.",]
-
-seasons_stats.log$X3P.[is.infinite(seasons_stats.log$X3P.)] <- helper_means["X3P.",]
-
-seasons_stats.log$X2P.[is.infinite(seasons_stats.log$X2P.)] <- helper_means["X2P.",]
-
-seasons_stats.log$eFG.[is.infinite(seasons_stats.log$eFG.)] <- helper_means["eFG.",]
-
-seasons_stats.log$FT.[is.infinite(seasons_stats.log$FT.)] <- helper_means["FT.",]
+seasons_stats.log$Height[is.na(seasons_stats.log$Height)] <- helper_means.log["Height",]
+seasons_stats.log$Weight[is.na(seasons_stats.log$Weight)] <- helper_means.log["Weight",]
+seasons_stats.log$PTSavg[is.na(seasons_stats.log$PTSavg)] <- helper_means.log["PTSavg",]
+seasons_stats.log$TRBavg[is.na(seasons_stats.log$TRBavg)] <- helper_means.log["TRBavg",]
+seasons_stats.log$ASTavg[is.na(seasons_stats.log$ASTavg)] <- helper_means.log["ASTavg",]
+seasons_stats.log$STLavg[is.na(seasons_stats.log$STLavg)] <- helper_means.log["STLavg",]
+seasons_stats.log$BLKavg[is.na(seasons_stats.log$BLKavg)] <- helper_means.log["BLKavg",]
+seasons_stats.log$TOVavg[is.na(seasons_stats.log$TOVavg)] <- helper_means.log["TOVavg",]
+seasons_stats.log$TS.[is.na(seasons_stats.log$TS.)] <- helper_means.log["TS.",]
+seasons_stats.log$FG.[is.na(seasons_stats.log$FG.)] <- helper_means.log["FG.",]
+seasons_stats.log$X3P.[is.na(seasons_stats.log$X3P.)] <- helper_means.log["X3P.",]
+seasons_stats.log$X2P.[is.na(seasons_stats.log$X2P.)] <- helper_means.log["X2P.",]
+seasons_stats.log$eFG.[is.na(seasons_stats.log$eFG.)] <- helper_means.log["eFG.",]
+seasons_stats.log$FT.[is.na(seasons_stats.log$FT.)] <- helper_means.log["FT.",]
 
 # Get back to making data
 seasons_stats.stand <- scale(seasons_stats.log, center=TRUE)
@@ -317,6 +398,9 @@ results.kmeans <- fitted(obj.kmeans, method = c("centers", "classes"))
 original_data <- data.frame(PC1 = seasons_stats.final[, PC.one], PC2 = seasons_stats.final[, PC.two], group = seasons_stats$Pos)
 original_data[,c(3)] <- sapply(original_data[,c(3)],as.character)
 
+original_data.yes_no <- data.frame(PC1 = seasons_stats.final[, PC.one], PC2 = seasons_stats.final[, PC.two], group = seasons_stats.cleaned$Pos)
+original_data.yes_no[,c(3)] <- sapply(original_data.yes_no[,c(3)],as.character)
+
 #############################################
 
 # Frame for centers of clusters and cluster themselves
@@ -332,7 +416,7 @@ algorithm_visuals <- rbind(centers_data, clusters_data)
 #############################################
 
 # All frames together
-all_visuals <- rbind(algorithm_visuals, original_data)
+all_visuals <- rbind(algorithm_visuals, original_data.yes_no)
 
 #############################################
 
@@ -400,40 +484,86 @@ acc_all <- data.frame("Method" = c("C4.5/ID3",
 acc_plot <-ggplot(acc_all, aes(x = Method, y = Accuracy)) +
                   ylim(0, 100) +
                   geom_bar(stat = "identity", fill = "steelblue") +
-                  theme_minimal()
+                  theme_minimal() +
+                  labs(x = "", y = "Accuracy", title = "Methods accuracy")
 
 ggsave("plot_acc.pdf", plot = acc_plot, device = "pdf", path = "./",
        scale = 1, width = NA, height = NA, units = c("cm"),
        dpi = 300, limitsize = FALSE)
 
 # Clusters:
-plot_of_players <- ggplot() +
-  geom_point(original_data, mapping=aes(x = PC1, y = PC2, group=group, col=group), position = position_dodge(width = 0.1))
+algorithm_visuals.clusters <- algorithm_visuals[3:nrow(algorithm_visuals),]
+names(algorithm_visuals.clusters) <- c("PC1", "PC2", "Clusters")
+algorithm_visuals.clusters$Clusters <- as.character(algorithm_visuals.clusters$Clusters)
+algorithm_visuals.clusters$Clusters[algorithm_visuals.clusters$Clusters == "1"] <- "Cluster 1"
+algorithm_visuals.clusters$Clusters[algorithm_visuals.clusters$Clusters == "2"] <- "Cluster 2"
+algorithm_visuals.clusters$Clusters <- as.factor(algorithm_visuals.clusters$Clusters)
 
-plot_of_clusters <- ggplot() +
-  geom_point(algorithm_visuals, mapping=aes(x = PC1, y = PC2, group=group, col=group), position = position_dodge(width = 0.1))
+algorithm_visuals.centers <- algorithm_visuals[1:2,]
+names(algorithm_visuals.centers) <- c("PC1", "PC2", "Clusters")
+algorithm_visuals.centers$Clusters <- as.character(algorithm_visuals.centers$Clusters)
+algorithm_visuals.centers$Clusters[algorithm_visuals.centers$Clusters == "c1"] <- "Center 1"
+algorithm_visuals.centers$Clusters[algorithm_visuals.centers$Clusters == "c2"] <- "Center 2"
+algorithm_visuals.centers$Clusters <- as.factor(algorithm_visuals.centers$Clusters)
 
-plot_of_all <- ggplot() +
-  geom_point(all_visuals, mapping=aes(x = PC1, y = PC2, group=group, col=group), position = position_dodge(width = 0.1))
+names(original_data) <- c("PC1", "PC2", "Clusters")
 
-plot_hclust <- ggplot(seasons_stats.cleaned, mapping=aes(x = seasons_stats.final[, PC.one],
-                                                         y = seasons_stats.final[, PC.two], 
-                                                         color = seasons_stats.cleaned$Pos)) + 
-                      geom_point(alpha = 0.4, size = 3.5) + geom_point(col = clusterCut) + 
-                      scale_color_manual(values = c('black', 'red'))
+plot_kclust <- ggplot() +
+    geom_point(shape = 16, 
+               data = algorithm_visuals.clusters, 
+               aes(x = PC1, y = PC2, col = Clusters), 
+               alpha = 0.4, size = 3.5) +
+    geom_point(shape = 16, 
+               data = original_data, 
+               aes(x = PC1, y = PC2, col = Clusters)) +
+    geom_point(shape = 8, 
+               data = algorithm_visuals.centers, 
+               aes(x = PC1, y = PC2, col = Clusters), 
+               size = 10.0) +
+    scale_color_manual(
+      breaks = c("Cluster 1", "Cluster 2", "PG","SG","SF", "PF", "C"),
+      values = c("#E5CA00", # C
+                 "black",  # center 1
+                 "red", # center 2
+                 "black", # cluster 1
+                 "red",  # cluster 2
+                 "#35F000", # PF
+                 "#0047F0", # PG
+                 "#0BD9AD", # SF
+                 "#E300E5")) + # SG
+    labs(x = "PC1", y = "PC2", title = "kMeans visualisation") +
+    theme(
+      legend.key = element_rect(colour = "transparent", 
+                                fill = "transparent"),
+      legend.background = element_rect(fill = "transparent"),
+      legend.title=element_blank(),
+      legend.justification=c(0,1), legend.position=c(0,1)
+    ) +
+    guides(colour = guide_legend(override.aes = list(shape = 16, size = 4.0)))
 
-combine_plots <- ggarrange(plot_of_players,
-                           plot_of_clusters, 
-                           plot_of_all,
-                           plot_hclust,
-                           labels = c("Original", "Cluster", "Combine", "Hierarchical"), ncol = 2, nrow = 2)
+plot_hclust <- ggplot(seasons_stats.cleaned, 
+      mapping=aes(x = seasons_stats.final[, PC.one],
+      y = seasons_stats.final[, PC.two], 
+      color = seasons_stats.cleaned$Pos)) + 
+      geom_point(alpha = 0.4, size = 3.5) + 
+      geom_point(col = clusterCut) + 
+      scale_color_manual(values = c('black', 'red')) +
+      labs(x = "PC1", y = "PC2", title = "Hierarchical Clustering visualisation") +
+      theme(
+        legend.key = element_rect(colour = "transparent", 
+                                  fill = "transparent"),
+        legend.background = element_rect(fill = "transparent"),
+        legend.title=element_blank(),
+        legend.justification=c(0,1), legend.position=c(0,1)
+       ) +
+       guides(colour = guide_legend(override.aes = list(shape = 16, size = 4.0)))
 
-# plot_of_players
-# plot_of_clusters
-# plot_of_all
+ggsave("plot_kclust.pdf", plot = plot_kclust, device = "pdf", path = "./",
+       scale = 1, width = 15, height = 15, units = c("cm"),
+       dpi = 300, limitsize = FALSE)
 
-ggsave("plot.pdf", plot = combine_plots, device = "pdf", path = "./",
-       scale = 1, width = 60, height = 60, units = c("cm"),
+ggsave("plot_hclust.pdf", plot = plot_hclust, device = "pdf", path = "./",
+       scale = 1, width = 15, height = 15, units = c("cm"),
        dpi = 300, limitsize = FALSE)
 
 ###################################################################
@@ -460,3 +590,82 @@ accuracy.kmeans
 #hClust############################################################
 matrix_error.hclust
 accuracy.hclust
+
+###################################################################
+###################################################################
+###################################################################
+###################################################################
+###################################################################
+
+# TPR = TP / (TP + FN)
+# FPR = FP / (FP + TN)
+# TNR = TN / (TN + FP)
+# FNR = FN / (FN + TP)
+TP.bayes <- matrix_error.bayes[2,2]
+TN.bayes <- matrix_error.bayes[1,1]
+FP.bayes <- matrix_error.bayes[2,1]
+FN.bayes <- matrix_error.bayes[1,2]
+
+TPR.bayes = TP.bayes / (TP.bayes + FN.bayes)
+FPR.bayes = FP.bayes / (FP.bayes + TN.bayes)
+TNR.bayes = TN.bayes / (TN.bayes + FP.bayes)
+FNR.bayes = FN.bayes / (FN.bayes + TP.bayes)
+
+TP.ctree <- matrix_error.ctree[2,2]
+TN.ctree <- matrix_error.ctree[1,1]
+FP.ctree <- matrix_error.ctree[2,1]
+FN.ctree <- matrix_error.ctree[1,2]
+
+TPR.ctree = TP.ctree / (TP.ctree + FN.ctree)
+FPR.ctree = FP.ctree / (FP.ctree + TN.ctree)
+TNR.ctree = TN.ctree / (TN.ctree + FP.ctree)
+FNR.ctree = FN.ctree / (FN.ctree + TP.ctree)
+
+TP.knn <- matrix_error.knn[2,2]
+TN.knn <- matrix_error.knn[1,1]
+FP.knn <- matrix_error.knn[2,1]
+FN.knn <- matrix_error.knn[1,2]
+
+TPR.knn = TP.knn / (TP.knn + FN.knn)
+FPR.knn = FP.knn / (FP.knn + TN.knn)
+TNR.knn = TN.knn / (TN.knn + FP.knn)
+FNR.knn = FN.knn / (FN.knn + TP.knn)
+
+TP.hclust <- matrix_error.hclust[2,2]
+TN.hclust <- matrix_error.hclust[1,1]
+FP.hclust <- matrix_error.hclust[2,1]
+FN.hclust <- matrix_error.hclust[1,2]
+
+TPR.hclust = TP.hclust / (TP.hclust + FN.hclust)
+FPR.hclust = FP.hclust / (FP.hclust + TN.hclust)
+TNR.hclust = TN.hclust / (TN.hclust + FP.hclust)
+FNR.hclust = FN.hclust / (FN.hclust + TP.hclust)
+
+# more FP gives more FPR and decrease TNR etc.
+
+ROCSpace <- data.frame("Method" = c("Naive Bayes",
+                                    "C4.5/ID3", 
+                                    "Hierarchical Clustering",
+                                    "kNN"),
+                       "FPR" = c(FPR.bayes, FPR.ctree, FPR.hclust, FPR.knn), 
+                       "TPR" = c(TPR.bayes, TPR.ctree, TPR.hclust, TPR.knn))
+
+plot_ROCspace <- ggplot(ROCSpace, 
+                        mapping=aes(x = FPR, y = TPR, col = Method)) + 
+                  ylim(0, 1) +
+                  xlim(0, 1) +
+                  geom_point(alpha = 0.4, size = 3.5) + 
+                  # scale_color_manual(values = c('black', 'red')) +
+                  labs(x = "FPR", y = "TPR", title = "TPR and FPR for methods") +
+                  theme(
+                    legend.key = element_rect(colour = "transparent", 
+                                              fill = "transparent"),
+                    legend.background = element_rect(fill = "transparent"),
+                    legend.title=element_blank(),
+                    legend.justification=c(1,1), legend.position=c(1,1)
+                  ) +
+                  guides(colour = guide_legend(override.aes = list(shape = 16, size = 4.0)))
+
+ggsave("plot_ROCspace.pdf", plot = plot_ROCspace, device = "pdf", path = "./",
+       scale = 1, width = 15, height = 15, units = c("cm"),
+       dpi = 300, limitsize = FALSE)
