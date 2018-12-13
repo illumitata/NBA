@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2018.10.13)  13 DEC 2018 08:28
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2018.10.13)  13 DEC 2018 13:49
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1119,13 +1119,13 @@ LaTeX Warning: There were multiply-defined labels.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 378.
  ) 
 Here is how much of TeX's memory you used:
- 10736 strings out of 493029
- 163319 string characters out of 6136233
+ 10732 strings out of 493029
+ 163279 string characters out of 6136233
  296846 words of memory out of 5000000
  13912 multiletter control sequences out of 15000+600000
- 91904 words of font info for 135 fonts, out of 8000000 for 9000
+ 91738 words of font info for 133 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 41i,13n,43p,1425b,447s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 41i,13n,43p,1428b,447s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/lm/lm-ec.enc}{/usr/share/texmf/fonts/enc/dv
 ips/lm/lm-rm.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/share
 /texmf/fonts/enc/dvips/lm/lm-mathsy.enc}</usr/share/texlive/texmf-dist/fonts/ty
@@ -1140,7 +1140,7 @@ mf/fonts/type1/public/lm/lmri9.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy
 10.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy6.pfb></usr/share/texmf/font
 s/type1/public/lm/lmsy9.pfb></usr/share/texmf/fonts/type1/public/lm/lmtt10.pfb>
 
-Output written on article.pdf (6 pages, 412731 bytes).
+Output written on article.pdf (6 pages, 412745 bytes).
 PDF statistics:
  232 PDF objects out of 1000 (max. 8388607)
  198 compressed objects within 2 object streams

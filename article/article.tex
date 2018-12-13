@@ -109,17 +109,17 @@
 
 \section{Wstęp - opis bazy}
 
-\lettrine[nindent=0em,lines=3]NBA to amerykańska liga koszykówki mężczyzn, najbardziej znana i dochodowa na świecie. Swój suckes zawdzięcza ciągłemu rozwojowi i dostosowywaniu się do potrzeb fanów sportu. Idzie za tym rozwój samych graczy, którzy muszą co wieczór zapewniać najwyższy poziom rozrywki. Od sportu dla studentów i amatorów do światowego widowiska najwyższej klasy, od ,,białego'' do ,,czarnego'' sportu - tak można opisać rozwój koszykówki oraz NBA. Celem przeprowadzonego eksperymentu będzie sprawdzenie czy w zadanym roku, możliwe jest sklasyfikowanie pozycji gracza na boisku. Zgodnie z założeniami sportu niektóre pozycje jak rozgrywający (Point Guard) czy środkowy (Center), mają znacząco różniące się zadania podczas rozgrywki. Idące za tym różnice w statystykach graczy powinny jasno wyznaczać poszczególne pozycje jako klasy. Czy na pewno?
+\lettrine[nindent=0em,lines=3]NBA to amerykańska liga koszykówki mężczyzn, najbardziej znana i dochodowa na świecie. Swój suckes zawdzięcza ciągłemu rozwojowi i dostosowywaniu się do potrzeb fanów sportu. Idzie za tym rozwój samych graczy, którzy muszą co wieczór zapewniać najwyższy poziom rozrywki. Od sportu dla studentów i amatorów do światowego widowiska najwyższej klasy, od ,,białego'' do ,,czarnego'' sportu - tak można opisać rozwój koszykówki oraz NBA. Celem przeprowadzonego eksperymentu będzie sprawdzenie, czy w danym roku możliwe jest sklasyfikowanie pozycji gracza na boisku. Zgodnie z założeniami sportu niektóre pozycje jak rozgrywający (Point Guard) czy środkowy (Center), mają znacząco różniące się zadania podczas rozgrywki. Idące za tym różnice w statystykach graczy powinny jasno wyznaczać poszczególne pozycje jako klasy. Czy na pewno?
 %------------------------------------------------
 
 \section{Przygotowanie danych}
 \subsection{Czy sezon ma znaczenie?}
-By w pełni wykorzystać bazę danych konieczne jest przygotowanie jej pod wymagane przez algorytmy dane wejściowe. Na początku projektu założone zostało, że rok 1980 zostanie najstarszym możliwym do wybrania rokiem. Dlaczego? W tym roku dopiero wprowadzono linię rzutów za 3 punkty oraz rozpoczęto prowadzenie szczegółowych statystyk podczas sezonu. Wcześniej nie prowadzono takowych ze względu technicznych oraz słabego zainteresowania sportem. Zatem jaki rok wybrano do badań? Tutaj wybór padł na 2017. Oprócz dokładnych statystyk, ważnym czynnikiem jest stan ligi. Sport ciągle ewoluuje, a mniej więcej od roku 2015 NBA przeżyło ogromne zmiany. Zaczęto wykorzystywać skutecznie linię rzutu za 3 punkty oraz pojawiło się dużo graczy ,,hybrydowych'', którzy nie są typowi dla swoich pozycji. Często są na tyle uniwersalni, że grają na pozycji, która aktualnie jest ważna dla danego zespołu lub dzięki temu uzysukją niesamowitą przewagę (przykładowo wzrostu) nad innymi graczami. Ostatecznie do badań wykorzystuje się jedynie jeden sezon. Dysproporcje między statystykami róznych sezonów mogą być na tyle duże, że określenie klasy będzie wręcz niemożliwe. Przykładem może być rok 1980 oraz 2016, gdzie w pierwszym oddawnano rzuty za 3 punkty okazyjnie w ostateczności, natomiast w drugim stało się to jednym z podstawowych elementów gry. 
+By w pełni wykorzystać bazę danych konieczne jest przygotowanie jej pod wymagane przez algorytmy dane wejściowe. Na początku projektu założone zostało, że rok 1980 zostanie najstarszym możliwym do wybrania rokiem. Dlaczego? W tym roku dopiero wprowadzono linię rzutów za 3 punkty oraz rozpoczęto prowadzenie szczegółowych statystyk podczas sezonu. Wcześniej nie prowadzono takowych ze względów technicznych oraz słabego zainteresowania sportem. Zatem jaki rok wybrano do badań? Tutaj wybór padł na 2017. Oprócz dokładnych statystyk, ważnym czynnikiem jest stan ligi. Sport ciągle ewoluuje, a mniej więcej od roku 2015 NBA przeżyło ogromne zmiany. Zaczęto wykorzystywać skutecznie linię rzutu za 3 punkty oraz pojawiło się dużo graczy ,,hybrydowych'', którzy nie są typowi dla swoich pozycji. Często są na tyle uniwersalni, że grają na pozycji, która aktualnie jest ważna dla danego zespołu lub dzięki temu uzysukją niesamowitą przewagę (przykładowo wzrostu) nad innymi graczami. Ostatecznie do badań wykorzystuje się jedynie jeden sezon. Dysproporcje między statystykami różnych sezonów mogą być na tyle duże, że określenie klasy będzie wręcz niemożliwe. Przykładem może być rok 1980 oraz 2016, gdzie w pierwszym oddawnano rzuty za 3 punkty okazyjnie w ostateczności, natomiast w drugim stało się to jednym z podstawowych elementów gry. 
 \subsection{Statystyki danego gracza}
 Wybrane bazy połączono i wykonano na nich odpowiednie operacje, by uzyskać następujące statystki:
 \begin{itemize}
 \item \textbf{Player}\\
-Imię i nazwisko gracz, przycięte o niepotrzebne znaki.
+Imię i nazwisko gracza, przycięte o niepotrzebne znaki.
 \item \textbf{Height}\\
 Wzrost gracza, podany w centymetrach.
 \item \textbf{Weight}\\
@@ -147,7 +147,7 @@ Skuteczność rzutów za 2 punkty.
 \item \textbf{eFG.}\\
 Effective field goal percentage, poprawiona statystyka z uwagą na ,,wartość'' rzutu (3 oraz 2 punkty).
 \item \textbf{FT.}\\
-Skuteczność rzutów z lini rzutów osobistych.
+Skuteczność rzutów z linii rzutów osobistych.
 \item \textbf{Pos}\\
 Pozycja gracza na boisku, w wypadku wielu pozycji (gdy gracz w jednym sezonie przechodził między drużynami) wybrana zostaje pozycja na której rozegrał najwięcej spotkań.
 \end{itemize}
@@ -224,7 +224,7 @@ yes & 48 & 78 \\
 \end{table}
 
 \subsection{TP, FP, TN, FN, THC, TPR, FPR, NBA, UG i inne skróty}
-Wartości TP, FP, TN, FN odpowiadają odpowiednio Prawdziwie Pozytywnemu, Fałszywie pozytywnemu, Prawdziwie Negatywnemu oraz Fałszywie Negatywnemu zaklasyfikowaniu gracza na zadanej pozycji.
+Wartości TP, FP, TN, FN odpowiadają odpowiednio Prawdziwie Pozytywnemu, Fałszywie Pozytywnemu, Prawdziwie Negatywnemu oraz Fałszywie Negatywnemu zaklasyfikowaniu gracza na zadanej pozycji.
 Wyliczone zostały również wartości TPR, FPR, FNR oraz TNR (znane jako sensitivity, fall-out, miss rate oraz specificity).
 Zauważono również zależności między nimi:
 \[ FPR + TNR = 1 \]
@@ -291,7 +291,7 @@ Naive Bayes & 0.3620692 \\
 
 \subsection{Metoda nieskuteczna}
 
-\indent Ze względu na naturę bazy metoda nie potrafiała osiągnąć pożądanych rezultatów. Klasa zazwyczaj jest niewyraźnie wydzielona od reszty oraz niewielka w stosunku do ogółu (zwyczajowo w sezonie 20\% zawodników jest odpowiednio przydzielonych do każdej z pozycji). Algorytm przedstawia się następująco (Rysunek 3). Widoczne centroidy dzielą ligę dokładnie w połowie. Inną możliwą przeszkodą, dla działania algorytmu, mogą być przeprowadzone operacje poprzedzające wprowadzenie danych wejściowych (log). Być może powodują zbyt duże znormalizowanie danych.
+\indent Ze względu na naturę bazy metoda nie potrafiła osiągnąć pożądanych rezultatów. Klasa zazwyczaj jest niewyraźnie wydzielona od reszty oraz niewielka w stosunku do ogółu (zwyczajowo w sezonie 20\% zawodników jest odpowiednio przydzielonych do każdej z pozycji). Algorytm przedstawia się następująco (Rysunek 3). Widoczne centroidy dzielą ligę dokładnie w połowie. Inną możliwą przeszkodą, dla działania algorytmu, mogą być przeprowadzone operacje poprzedzające wprowadzenie danych wejściowych (log). Być może powodują zbyt duże znormalizowanie danych.
 
 \begin{figure}[hbt!]
   \centering
@@ -302,7 +302,7 @@ Naive Bayes & 0.3620692 \\
 \newpage
 \subsection{Czy można to zrobić inaczej?}
 
-\indent Obserwując wyniki metody k-means, postanowione zostało znaleźenie skutecznego rozwiązania dla problemu klastrowania. Wspomniane wcześniej Grupowanie Hierarchiczne (Hierarchical Clustering) opiera się na dzieleniu obserwacji na klastry bazując na podobieństwach między nimi. Nie jest tutaj konieczne określenie ilości klastrów na początku działania. Zatem bardzo możliwe wydaje się znalezienie dwóch grup, które z założeń projektu powinny być łatwe do wydzielenia ze zbioru obserwacji. Do obliczeń potrzebnych w algorytmie  skorzystano z metody Połączeń Ward'a pod nazwą ward.D2. Korzysta ona z obserwacji, dzięki której nie jest wymagane podniesienie do kwadratu wszystkich odchyleń od punktów do centroidów. W procesie tworzy się pary zawierające pojedńcze obserwacje. Następnie pary klastrów są sukcesywnie łączone, aż do momentu gdy wszystkie klastry zostaną scalone w duży klaster zawierający podobne obiekty. Wyniki przedstawione zostały na Rysunku 4. Algorytm deprymuje pokrewną metodę k-średnich oraz prezentuje skuteczność zbliżoną do pozostałych metod (Rysunek 1).
+\indent Obserwując wyniki metody k-means, postanowione zostało znaleźenie skutecznego rozwiązania dla problemu klastrowania. Wspomniane wcześniej Grupowanie Hierarchiczne (Hierarchical Clustering) opiera się na dzieleniu obserwacji na klastry bazując na podobieństwach między nimi. Nie jest tutaj konieczne określenie ilości klastrów na początku działania. Zatem bardzo możliwe wydaje się znalezienie dwóch grup, które z założeń projektu powinny być łatwe do wydzielenia ze zbioru obserwacji. Do obliczeń potrzebnych w algorytmie  skorzystano z metody Połączeń Ward'a pod nazwą ward.D2. Korzysta ona z obserwacji, dzięki której nie jest wymagane podniesienie do kwadratu wszystkich odchyleń od punktów do centroidów. W procesie tworzą się pary zawierające pojedyncze obserwacje. Następnie pary klastrów są sukcesywnie łączone, aż do momentu gdy wszystkie klastry zostaną scalone w duży klaster zawierający podobne obiekty. Wyniki przedstawione zostały na Rysunku 4. Algorytm deprymuje pokrewną metodę k-średnich oraz prezentuje skuteczność zbliżoną do pozostałych metod (Rysunek 1).
 
 \begin{figure}[hbt!]
   \centering
@@ -339,7 +339,7 @@ Reguły dla pozostałych pozycji (najczęściej wyższych, silniejszych i grają
 
 \section{Podsumowanie badań}
 
-\indent Po przeprowadzonych badaniach można zauważyć ewolucję koszykówki oraz graczy tworzących ligę NBA. Z biegiem czasu, różnice pomiędzy rolami na boisku coraz bardziej się zacierają. Nowe taktyki oraz wykorzystyanie statytki w celu optymalizacji wyników drużyny, powodują drastyczne zmiany w założeniach koszykówki. W dniu dzisiejszym największą przeszkodą dla algorytmów jest uniwersalność obecnych w lidze zawodników. Jednak wciąż możłiwe jest stosunkowo skuteczne sklasyfikowanie gracza, który odzacza się specjalną rolą na boisku (rozgrywający). Największym zaskoczeniem eksperymentu okazało się wykorzystanie innej niż przedstawionej podczas laboratoriów metody klasteryzacji. Pomimo swoich wad, przy odpowiednich danych, jest w stanie konkurować z innymi alogrytmami klasyfikującymi.
+\indent Po przeprowadzonych badaniach można zauważyć ewolucję koszykówki oraz graczy tworzących ligę NBA. Z biegiem czasu, różnice pomiędzy rolami na boisku coraz bardziej się zacierają. Nowe taktyki oraz wykorzystywanie statystyki w celu optymalizacji wyników drużyny, powodują drastyczne zmiany w założeniach koszykówki. W dniu dzisiejszym największą przeszkodą dla algorytmów jest uniwersalność obecnych w lidze zawodników. Jednak wciąż możliwe jest stosunkowo skuteczne sklasyfikowanie gracza, który odzacza się specjalną rolą na boisku (rozgrywający). Największym zaskoczeniem eksperymentu okazało się wykorzystanie innej niż przedstawionej podczas laboratoriów metody klasteryzacji. Pomimo swoich wad, przy odpowiednich danych, jest w stanie konkurować z innymi alogrytmami klasyfikującymi.
 
 %----------------------------------------------------------------------------------------
 %	REFERENCE LIST
