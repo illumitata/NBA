@@ -79,7 +79,7 @@
 
 \pretitle{\begin{center}\Huge\bfseries} % Article title formatting
 \posttitle{\end{center}} % Article title closing formatting
-\title{Zastosowanie algorytmu genetycznego do uzsykania rozwiązań problemów 3-SAT} % Article title
+\title{Zastosowanie technik zgłębiania danych w przewidywaniu pozycji gracza NBA} % Article title
 \author{%
 \textsc{Jan Iwaszkiewicz}\thanks{indeks: 238215, kontakt: \href{mailto:jiwaszkiewicz6@gmail.com}{jiwaszkiewicz6@gmail.com}} \\[1ex] % Your name
 \normalsize Uniwersytet Gdański \\ % Your institution
@@ -91,10 +91,7 @@
 \date{\today} % Leave empty to omit a date
 \renewcommand{\maketitlehookd}{%
 \begin{abstract}
-\noindent W poniższym opracowaniu, proponuję metodę określenia, bądź znalezienia jak najbardziej optymalnego wartościowania dla problemu spełnialności formuł w koniunkcyjnej postaci normalnej z klauzulami posiadającymi trzy literały (3-SAT). Przedstawione podejście zostało oparte o heurystyczne techniki algorytmów genetycznych, które czerpią swoją inspirację z ewolucji organicznej. Na podstawie przeprowadzonych testów oraz wyprowadzonych z nich wniosków, stwierdzona % sprawdzona?
-zostaje poprawność metody. 
-Ostatecznie określona zostaje również najefektywniejsza dostępna % sprawdzona
-konfiguracja dla zaimplemenotwanego rozwiązania. % \blindtext % Dummy abstract text - replace \blindtext with your abstract text
+\noindent W poniższym opracowaniu przedstawione zostają klasyfikatory oraz inne metody zgłębiania danych pozwalające na określanie pozycji gracza ligi NBA. Przy wykorzystaniu statystyk z danego sezonu sprawdzona zostaje skuteczność przedstawionych algorytmów. Dodatkowo zostaje opisany sposób doboru danych oraz ich potencjalny wpływ na wyniki badań. % \blindtext % Dummy abstract text - replace \blindtext with your abstract text
 \end{abstract}
 }
 
@@ -109,129 +106,189 @@ konfiguracja dla zaimplemenotwanego rozwiązania. % \blindtext % Dummy abstract 
 %	ARTICLE CONTENTS
 %----------------------------------------------------------------------------------------
 
-\section{Wstęp}
+\section{Wstęp - opis bazy}
 
-\lettrine[nindent=0em,lines=3]{3} -SAT jest jednym z najbardziej rozpoznawalnych problemów
-należących do klasy złożoności obliczeniowej zwanej NP. Charakterystyczną dla tej grupy
-cechą jest możliwość sprawdzenia rozwiązania w czasie wielomianowym. Pomimo trywialności
-sprawdzenia rozwiązania, znalezienie takiego jest zadaniem trudniejszym. Zatem wyszukiwanie
-wartościowania spełniającego daną formułę logiczną w formie CNF powinno być równie czasochłonnym zajęciem.
-Czy na pewno? W poniższym artykule przedstawiona zostanie metoda wyszukiwania rozwiązań za pomocą
-binarnego algorytmu genetycznego. Cechujący się losowością, bardzo nieprzewidywalny algorytm, którego głównym zadaniem jest znalezienie optymalnego rozwiązania (niekoniecznie dokładnego) zostanie skonfrontowany z nietrywialną naturą problemu 3-SAT.
+\lettrine[nindent=0em,lines=3]NBA to amerykańska liga koszykówki mężczyzn, najbardziej znana i dochodowa na świecie. Swój suckes zawdzięcza ciągłemu rozwojowi i dostosowywaniu się do potrzeb fanów sportu. Idzie za tym rozwój samych graczy, którzy muszą co wieczór zapewniać najwyższy poziom rozrywki. Od sportu dla studentów i amatorów do światowego widowiska najwyższej klasy, od ,,białego'' do ,,czarnego'' sportu - tak można opisać rozwój koszykówki oraz NBA. Celem przeprowadzonego eksperymentu będzie sprawdzenie czy w zadanym roku, możliwe jest sklasyfikowanie pozycji gracza na boisku. Zgodnie z założeniami sportu niektóre pozycje jak rozgrywający (Point Guard) czy środkowy (Center), mają znacząco różniące się zadania podczas rozgrywki. Idące za tym różnice w statystykach graczy powinny jasno wyznaczać poszczególne pozycje jako klasy. Czy na pewno?
 %------------------------------------------------
 
-\section{Chromosom pracujący}
-
-Inspiracją dla metody jest naturalne środowisko. Chromosomy jak żywe organizmy próbują
-dostosować się jak najlepiej do postawionych im warunków. Zatem właściwości chormosomu oraz jego metody przystosowywania się można opisać w następujący sposób:
+\section{Przygotowanie danych}
+\subsection{Czy sezon ma znaczenie?}
+By w pełni wykorzystać bazę danych konieczne jest przygotowanie jej pod wymagane przez algorytmy dane wejściowe. Na początku projektu założone zostało, że rok 1980 zostanie najstarszym możliwym do wybrania rokiem. Dlaczego? W tym roku dopiero wprowadzono linię rzutów za 3 punkty oraz rozpoczęto prowadzenie szczegółowych statystyk podczas sezonu. Wcześniej nie prowadzono takowych ze względu technicznych oraz słabego zainteresowania sportem. Zatem jaki rok wybrano do badań? Tutaj wybór padł na 2017. Oprócz dokładnych statystyk, ważnym czynnikiem jest stan ligi. Sport ciągle ewoluuje, a mniej więcej od roku 2015 NBA przeżyło ogromne zmiany. Zaczęto wykorzystywać skutecznie linię rzutu za 3 punkty oraz pojawiło się dużo graczy ,,hybrydowych'', którzy nie są typowi dla swoich pozycji. Często są na tyle uniwersalni, że grają na pozycji, która aktualnie jest ważna dla danego zespołu lub dzięki temu uzysukją niesamowitą przewagę (przykładowo wzrostu) nad innymi graczami. Ostatecznie do badań wykorzystuje się jedynie jeden sezon. Dysproporcje między statystykami róznych sezonów mogą być na tyle duże, że określenie klasy będzie wręcz niemożliwe. Przykładem może być rok 1980 oraz 2016, gdzie w pierwszym oddawnano rzuty za 3 punkty okazyjnie w ostateczności, natomiast w drugim stało się to jednym z podstawowych elementów gry. 
+\subsection{Statystyki danego gracza}
+Wybrane bazy połączono i wykonano na nich odpowiednie operacje, by uzyskać następujące statystki:
 \begin{itemize}
-\item \textbf{Budowa chromosomu}\\
-Chromosom posiada swoją wartość (zwaną też genotypem) zapisaną w postaci ciągu bitów, gdzie każdy bit (gen) przyjmuje wartość 0 lub 1. Indeks bitu w ciągu jest odpowiadający indeksowi zmiennej w formule logicznej. Przykład:
+\item \textbf{Player}\\
+Imię i nazwisko gracz, przycięte o niepotrzebne znaki.
+\item \textbf{Height}\\
+Wzrost gracza, podany w centymetrach.
+\item \textbf{Weight}\\
+Waga gracza, podana w kilogramach.
+\item \textbf{PTSavg}\\
+Średnia punktów z sezonu, ilość punktów ogółem podzielona na ilość rozegranych meczy.
+\item \textbf{TRBavg}\\
+Średnia zbiórek z sezonu, ilość zbiórek ogółem podzielona na ilość rozegranych meczy.
+\item \textbf{ASTavg}\\
+Średnia asyst z sezonu, ilość asyst ogółem podzielona na ilość rozegranych meczy.
+\item \textbf{STLavg}\\
+Średnia przechwytów z sezonu, ilość przechwytów ogółem podzielona na ilość rozegranych meczy.
+\item \textbf{BLKavg}\\
+Średnia bloków z sezonu, ilość bloków ogółem podzielona na ilość rozegranych meczy.
+\item \textbf{TOVavg}\\
+Średnia strat z sezonu, ilość strat ogółem podzielona na ilość rozegranych meczy.
+\item \textbf{TS.}\\
+True shooting precentage, statystka prowadzona by dokładniej określić skuteczność w oddawaniu rzutów.
+\item \textbf{FG.}\\
+Field goals precentage, skuteczność rzutów z gry.
+\item \textbf{X3P.}\\
+Skuteczność rzutów za 3 punkty.
+\item \textbf{X2P.}\\
+Skuteczność rzutów za 2 punkty.
+\item \textbf{eFG.}\\
+Effective field goal percentage, poprawiona statystyka z uwagą na ,,wartość'' rzutu (3 oraz 2 punkty).
+\item \textbf{FT.}\\
+Skuteczność rzutów z lini rzutów osobistych.
+\item \textbf{Pos}\\
+Pozycja gracza na boisku, w wypadku wielu pozycji (gdy gracz w jednym sezonie przechodził między drużynami) wybrana zostaje pozycja na której rozegrał najwięcej spotkań.
 \end{itemize}
-\noindent\fbox{%
-    \parbox{\columnwidth}{%
-        Chromosom w postaci:
-        \begin{nscenter}
-			\bfseries 0110
-		\end{nscenter}
-        dla formuły:
-        \begin{nscenter}
-			$(\neg x_1 \vee \neg x_4 \vee x_2) \wedge (x_1 \vee \neg x_1 \vee \neg x_3)$
-		\end{nscenter}
-        tworzy następujące podstawienie:
-        \begin{nscenter}
-          $(\neg 0 \vee \neg 0 \vee 1) \wedge (0 \vee \neg 0 \vee \neg 1)
-		  \rightarrow
-          (1 \vee 1 \vee 1) \wedge (0 \vee 1 \vee 0)$ 
-         \end{nscenter}
+Wszystkie statystki zostają dodatkowo wyselekcjonowane, bądź poddane innym operacjom w wypadku korzystania z poszczególnych algorytmów. Przy wystąpieniu wartości niemożliwych do zdefiniowania NA lub -INF, dane zastępowano średnimi ligowymi, bądź zerami w zależności od potrzeb.
+\subsection{Pozycja na boisku jako klasa}
+By możliwe ułatwić pracę oraz dopasować się do założeń projektu kolumna z pozycją gracza upraszcza się do decyzji ,,yes'' lub ,,no''. Pozycję którą chcemy poddać klasyfikacji ustalamy za pomocą zmiennej ,,desired position''. Dostępne prametry to ,,PG'', ,,SG'', ,,SF'', ,,PF'' oraz ,,C''.
+%------------------------------------------------
 
-    }%
-}\newpage
+\section{Klasyfikatory}
+\subsection{Podział na zbiory}
+\indent Do klasyfikatorów C4.5/ID3 (drzewo), Naive Bayes, kNN niezbędny jest podział danych na zbiory treningowe i testowe. Dokonano go za pomocą losowego wybrania rekordów przy prawdopodobieństawch 67\% oraz 33\%. Do metody kNN znormalizowane zostały również wszystkie kolumny z wartościami numerycznymi.
+\newpage
+\subsection{Porównanie klasyfikatorów}
+\indent Na przygotowanej bazie dokonano klasyfikacji za pomocą następujących metod.
 \begin{itemize}
-\item \textbf{Selekcja}\\
-Do ponownego zasiedlenia populacji wybiera się nowe osobniki w drodze selekcji. W przedstawionym rozwiązaniu porównujemy dwie metody:
-	\begin{itemize}
-		\item \textbf{Metoda ruletki}, polegająca na losowym wybraniu dwóch osobników z dostępnej puli.
-		\item \textbf{Metoda turniejowa}, opierająca się na wybieraniu dwóch grup (o stałym rozmiarze podanym przy rozpoczęciu obliczeń) składającej się z losowych osobników. W każdej grupie wybiera się najlepiej przystosowanego z nich, który jest przekazywany do następnego pokolenia.
-	\end{itemize}
-\item \textbf{Krzyżowanie}\\
-Po selekcji dwóch osobników może nastąpić etap krzyżowania. Operacja powoduje przecięcie dwóch wybranych chromosomów w losowo wybranym miejscu. Powstają wtedy dwa nowe osobniki, wprowadzane są do nowej populacji. Operacja powtwarzana jest do momentu ponownego zapełnienia puli chromosomów. Szansa skrzyżowania osobników określana jest w przedziale \textit{(0,1)}.
-\item \textbf{Mutacja}\\
-Następny nadchodzący proces to mutacja. Polega ona na zamianie bitu na przeciwny. Dzięki takiej operacji możemy spowodować przerwanie rozwoju populacji spowodowanego przez przeludnienie podobnymi osobnikami. Szansa mutacji określana jest w przedziale \textit{(0,1)}.
-\item \textbf{Elityzm}\\
-Opcjonalny parametr zapewniający przeniesienie danej liczny najlepiej przystosowanych osobników do następnej generacji. Zapewniony zostaje wtedy brak regresji w jakości rozwiązania. Przesadny elityzm może jednak doprowadzić do zastoju w populacji, większość osobników jest bardzo podobna, zmniejsza się szansa na stworzenie nowego rozwiązania. Wartość musi znajdować się w przedziale \textit{(0, rozmiar populacji)}.
+\item \textbf{C4.5/ID3 - drzewo decyzyjne}
+\item \textbf{Naive Bayes}
+\item \textbf{kNN - k najbliższych sąsiadów}
+Przy użyciu dwóch najbliższych sąsiadów.
+\item \textbf{Hierarchical Clustering}
+Metoda pokrewna do k-średnich. Jednak wykazująca większą skuteczność dla wybranej bazy.
 \end{itemize}
-%------------------------------------------------
 
-\section{Fitness}
+Oprócz wymienionych metod do wykresu przedstawiającego skuteczność klasyfikacji, zestawiona została również metoda k-Means. Pozwala to porównać ją z pochodzącym z tej samej rodziny sposobem Hierarchical Clustering. Wyniki widoczne są na Rysunku 1. Wyznaczone zastały również macierze błędu dla metod (Tablice 1, 2, 3 oraz 4). Przeprowadzone poza zakresem sprawozdania testy zwracały podobne wyniki dla większości sezonów, poza okresem (1996-2000) dla pozycji PG gdzie dochodziło do spadku skuteczności. Również pozycje ,,bardziej płynne'' (SG, SF, PF), które często są wymienne i mają średnie statystki zbliżone do siebie, wykazywały się niższą skutecznością klasyfikacji. Szczególnie widoczne jest to w ,,nowoczesnej erze'' NBA, rozpoczynającej się od połowy lat 90, aż do niedawno zanotowanego sezonu 2017.
+\begin{figure}[hbt!]
+  \centering
+    \includegraphics[width=\linewidth]{plot_acc.pdf}
+  \caption{Porówanie skuteczności w klasyfikowaniu graczy dla pozycji PG na podstawie danych z roku 2017.}
+  \label{fig:coffee}
+\end{figure}
 
-\indent Dla wcześniej opisanych operacji kluczową dla działania algorytmu jest funckja fitness. Określna ona jak dobrze przystosowany jest w danym momencie chromosom. Na podstawie wyniku tej funkcji dokonuje się selekcji osobników. W przedstawionym rozwiązaniu istnieje możliwość zaprzestania działania algorytmu, gdy najlepszy przedstawiciel grupy osiąga pożądaną wartość zwróconą przez funckję fitness. Pozwala to na ograniczenie zbędnych iteracji algorytmu.
-Poniżej zostaje opisane działanie funkcji:\\
-\noindent\fbox{%
-    \parbox{\columnwidth}{%
-      \begin{enumerate}
-    	\item Ustaw licznik poprawnych klauzul równy 0.
-    	\item Dla każdej klauzuli w tablicy formuły:
-    	\begin{enumerate}
-		\item Pobierz klauzulę.
-		\item Ustaw wartość check na 0.
-		\item Dla każdego elementu w klauzuli:
-		      \begin{enumerate}
-		\item Znajdź bit w chromosomie odpowiadający za i-ty element klauzuli.
-		\item Jeśli element klauzuli jest ujemny, zaprzecz bitowi chromosomu.
-		\item Zwróć wartość bitu.
-		\item Sprawdź alternatywę bieżącego elementu z check.
-		      \end{enumerate}
-
-		\item Zwróć wartość check.
-		\item Jeśli wartość check jest równa 1, dodaj 1 do wartości licznika.
-		\end{enumerate}
-		\item Zwróć wartość licznika jako nową funkcję oceny.
-	  \end{enumerate}
-    }%
- }
-%------------------------------------------------
-
-\section{Testy i wnioski}
-
-\subsection{Selekcja naturalna}
-
-\indent Podane testom formuły (wszystkie zawarte w folerze \textit{datasets}) zostały sprawdzone przy pomocy dostępnego w internecie SAT-solvera\footnote{\url{https://msoos.github.io/cryptominisat_web/}} dla zapewnienia rozwiązywalności zadania.\newpage By uzyskać odpowiedź na pytanie, która z metod selekcji prowadzi do skuteczniejszego rozwiązywania przeprowadzone zostały testy dla dwóch instacji problemu w postaci 40 zmiennych w 80 klauzulach oraz 50 zmiennych w 100 klauzulach. Parametry takie jak maksymalna ilość iteracji \textit{(10000)}, elityzm \textit{(1)}, szansa krzyżowania \textit{(0.3)} oraz mutacji \textit{(0.1)} były stałe dla każdego testu. Dla każdej z 10 losowo tworzonych generacji uruchamiano pomiary na 5 unikalnych rozmiarów populacji. Dodatkowo by zapewnić wiarygodność rozwiązania, każda wygenerowana populacja początkowa była identyczna dla obu selekcji. Wykresy sporządzone na podstawie wyników \textit{(Rysunek 1)} wyraźnie przedstawiają przewagę metody turniejowej. Związek ilości iteracji, a czasu wykonania jest również widoczny w przeprowadzonych badaniach\footnote{Dostępne w folderze datasets.}. Jest o kilka rzędów wielkości sprawniejsza od przeciętnego uruchomienia selekcji ruletki, pomimo obciążenia ciągłym sortowaniem grup turniejowych.\\ \indent
-Efektywność metody to jednak nie tylko czas obliczeń, porównana została również stabilność. Różnica między medianą, a średnią arytmetyczną czasu działania algorytmu dla metody ruletki jest znacząca. Metoda nie jest stabilna przez wysoki stopień losowości w wyborze następnych kandydatów do przetrwania. Określony również został powód tak znaczącej różnicy. W tabeli \textit{(Tablica 1)} wyraźnie widać ilość niedokładnych wyników zwróconych przez algorytm w przypadku niestabilnej metody.
-\begin{table}
-\caption{Ilość niedokładnych wyników \\zwróconych przez algorytm}
+\begin{table}[hbt!]
+\centering
+\caption{Macierz błędu : C4.5/ID3 - drzewo decyzyjne}
 \begin{tabular}{l*{2}{c}r}
-Selekcja & fails(40x 80k) & fails(50x 100k) \\
+Pred/Real & no & yes \\
 \hline
-ruletka & 1 & 58 \\
-turniejowa & 0 & 3 \\
+no & 118 & 9 \\
+yes & 8 & 19 \\
 \end{tabular}
 \end{table}
-W przypadku funkcji ruletki dokładnie rozwiązanie nie zostało znalezione nawet w czasie stałej liczby 10000 iteracji. Dane pokazują jednak, że metoda ruletki potrafi również trafić w momencie lub w pierwszej iteracji w idealne rozwiązanie. Zdarzenie przypadku trafienia idealnego rozwiązania w momencie generacji występowało i będzie występować w obu wersjach selekcji, nie wypływa ono zatem na decyzję o wyborze jednej z przedstawionych metod.
-\\ \indent Analizując wyniki badań oczywistą opcją przy uruchomieniu algorytmu staje się zastosowanie selekcji turniejowej, która zapewnia większą stabliność oraz jakość rozwiązania.
 
-\begin{figure}[h!]
+\begin{table}[hbt!]
+\centering
+\caption{Macierz błędu : Naive Bayes}
+\begin{tabular}{l*{2}{c}r}
+Pred/Real & no & yes \\
+\hline
+no & 97 & 7 \\
+yes & 29 & 21 \\
+\end{tabular}
+\end{table}
+
+\begin{table}[hbt!]
+\centering
+\caption{Macierz błędu : kNN - k najbliższych sąsiadów}
+\begin{tabular}{l*{2}{c}r}
+Pred/Real & no & yes \\
+\hline
+no & 114 & 7 \\
+yes & 7 & 19 \\
+\end{tabular}
+\end{table}
+
+\begin{table}[hbt!]
+\centering
+\caption{Macierz błędu : Hierarchical Clustering}
+\begin{tabular}{l*{2}{c}r}
+Pred/Real & no & yes \\
+\hline
+no & 342 & 18 \\
+yes & 48 & 78 \\
+\end{tabular}
+\end{table}
+
+\subsection{TP, FP, TN, FN, THC, TPR, FPR, NBA, UG i inne skróty}
+Wartości TP, FP, TN, FN odpowiadają odpowiednio Prawdziwie Pozytywnemu, Fałszywie pozytywnemu, Prawdziwie Negatywnemu oraz Fałszywie Negatywnemu zaklasyfikowaniu gracza na zadanej pozycji. Zakładamy, że szukamy PG, rozgrywających. Zatem TP odpowiada poprawnemu przydzielniu klasy yes dla gracza będącego na pozycji rozgrywającego, FP przydzieleniu klasy yes dla gracza występującego przykładowo jako niski skrzydłowy, TN przypisaniu no dla rzucającego obrońcy oraz FN przydzieleniu no dla gracza będącego rozgrywającym.
+\\
+Na wykresie (Rysunek 2) przedstawione jest położenie klasyfikatorów w zależności od wyników FPR i TPR. Biorąc pod uwagę przemyślenia najlepszym klasyfikatorem wydaje się być NAZWA, gdyż znajduje się nabliżej założeń klasyfikatora idealnego.
+\begin{figure}[hbt!]
   \centering
-  \begin{subfigure}[b]{\linewidth}
-    \includegraphics[width=\linewidth]{40x80k.png}
-    \caption{Rysunek 1.1}
-  \end{subfigure}
-  \begin{subfigure}[b]{\linewidth}
-    \includegraphics[width=\linewidth]{50x100k.png}
-    \caption{Rysunek 1.2}
-  \end{subfigure}
-  \caption{Porównanie czasu trwania obliczeń dla dwóch instancji 3-SAT}
+    \includegraphics[width=\linewidth]{plot_ROCspace.pdf}
+  \caption{Porównanie sensitivity i false alarm dla klasyfikatorów.}
+  \label{fig:coffee}
+\end{figure}
+%------------------------------------------------
+
+\section{Grupowanie metodą k-średnich}
+
+\subsection{Metoda nieskuteczna}
+
+\indent Ze względu na naturę bazy metoda nie potrafiała osiągnąć pożądanych rezultatów. Klasa zazwyczaj jest niewyraźnie wydzielona od reszty oraz niewielka w stosunku do ogółu (zwyczajowo w sezonie 20\% zawodników jest odpowiednio przydzielonych do każdej z pozycji). Algorytm przedstawia się następująco (Rysunek 3). Widoczne centroidy dzielą ligę dokładnie w połowie. Inną możliwą przeszkodą, dla działania algorytmu, mogą być przeprowadzone operacje poprzedzające wprowadzenie danych wejściowych (log). Być może powodują zbyt duże znormalizowanie danych.
+
+\begin{figure}[hbt!]
+  \centering
+    \includegraphics[width=\linewidth]{plot_kclust.pdf}
+  \caption{Metoda k-średnich : klastry oraz nałożona na nią liga, sezon 2017.}
   \label{fig:coffee}
 \end{figure}
 
-\subsection{Rozmiar formuł}
-Na wykresie \textit{(Rysunek 2)} został przedstawiony czas działania algorytmu dla zmieniających się rozmiarów klauzul. Zgodnie z oczekiwaniami czas potrzebny na wykonanie programu zwiększa się razem z rozmiarem rozwiązywanego problemu. Program nadzwyczajnie dobrze radzi sobie z problemami do rozmiarów 40 zmiennych w 80 klauzulach. Następnie zauważalny jest gwałtowny spadek wydajności rozwiązania oraz większa rozbieżność czasu wykonania pomiędzy uruchomieniami algorytmu. Możliwym rozwiązaniem tych zachwiań może okazać się dobór bardziej optymalnych parametrów. Natomiast czynnik losowości zmian bądź inny zestaw chromosomów początkowych może zaważyć o czasie zakończenia algorytmu, dlatego nie jest możliwe przewidzenie optymalnych parametrów dla danej instancji problemu bez wyczerpujących testów.
-\begin{figure}[h!]
+\subsection{Czy można to zrobić inaczej?}
+
+\indent Obserwując wyniki metody k-means, postanowione zostało znaleźenie skutecznego rozwiązania dla problemu klastrowania. Wspomniane wcześniej Grupowanie Hierarchiczne (Hierarchical Clustering) opiera się na dzieleniu obserwacji na klastry bazując na podobieństwach między nimi. Nie jest tutaj konieczne określenie ilości klastrów na początku działania. Zatem bardzo możliwe wydaje się znalezienie dwóch grup, które z założeń projektu powinny być łatwe do wydzielenia ze zbioru obserwacji. Do obliczeń potrzebnych w algorytmie  skorzystano z metody Połączeń Ward'a pod nazwą ward.D2. Korzysta ona z obserwacji, dzięki której nie jest wymagane podniesienie do kwadratu wszystkich odchyleń od punktów do centroidów. W procesie tworzy się pary zawierające pojedńcze obserwacje. Następnie pary klastrów są sukcesywnie łączone, aż do momentu gdy wszystkie klastry zostaną scalone w duży klaster zawierający podobne obiekty. Wyniki przedstawione zostały na Rysunku 4. Algorytm deprymuje pokrewną metodę k-średnich oraz prezentuje skuteczność zbliżoną do pozostałych metod (Rysunek 1).
+
+\begin{figure}[hbt!]
   \centering
-    \includegraphics[width=\linewidth]{comp.png}
-  \caption{Selekcja turniejowa dla różnych \\rozmiarów problemu}
+    \includegraphics[width=\linewidth]{plot_hclust.pdf}
+  \caption{Metoda Hierarchical Clustering : klastry oraz nałożona na nią liga, sezon 2017, pozycja PG.}
   \label{fig:coffee}
 \end{figure}
+
+%------------------------------------------------
+
+\section{Reguły asocjacyjne}
+
+\indent Pomimo uproszczenia danych dwie wartości ,,above'', ,,bellow'' (powyżej i poniżej średnich ligowych) oraz wykluczeniu zbędnych lub powtarzających się, wyciągnięte z bazy reguły asocjacyjne można liczyć w setkach lub tysiącach. Wybrane zostały zatem tylko najbardziej interesujące z wysokim czynnikiem wiarygodności oraz wsparcia. Poniżej opisane kilka z nich:
+
+\begin{itemize}
+\item \textbf{Wynik: Pos=yes dla PG}\\
+Zgodnie z założenieniami rozgrywający nie zdobywa wielu punktów oraz nie gra pod koszem przez swój wzrost i wagę (poniżej średniej Height, Weight, TRBavg oraz BLKavg). Opiera swoją grę na asystach i przechwytach. Odznacza się również dobrym \% z linii osobitych. Przykłady:
+\begin{itemize}
+	\item PTSavg=bellow \\ ASTavg=above\\ STLavg=above\\ BLKavg=bellow\\ X3P.=bellow \\ FT.=above \\
+	\item TRBavg=bellow \\ ASTavg=above \\ STLavg=above \\ X3P.=bellow \\ 
+	FT.=above \\
+	\item Height=bellow \\ ASTavg=above \\ X3P.=bellow \\ FT.=above
+\end{itemize}
+\end{itemize}
+
+\begin{itemize}
+\item \textbf{Wynik: Pos=no dla PG}\\
+Reguły dla pozostałych pozycji (najczęściej wyższych, silniejszych i grających bliżej kosza) również nie zaskoczyły podczas eksperymentu. Przykłady:
+\begin{itemize}
+	\item Height=above \\ Weight=above \\ TRBavg=above \\
+	\item TRBavg=above \\ BLKavg=above \\ X3P.=bellow \\ FT.=above
+\end{itemize}
+\end{itemize}
+
+%------------------------------------------------
+
+\section{Podsumowanie badań}
+
+\indent Po przeprowadzonych badaniach można zauważyć ewolucję koszykówki oraz graczy tworzących ligę NBA. Z biegiem czasu, różnice pomiędzy rolami na boisku coraz bardziej się zacierają. Nowe taktyki oraz wykorzystyanie statytki w celu optymalizacji wyników drużyny, powodują drastyczne zmiany w założeniach koszykówki. W dniu dzisiejszym największą przeszkodą dla algorytmów jest uniwersalność obecnych w lidze zawodników. Jednak wciąż możłiwe jest stosunkowo skuteczne sklasyfikowanie gracza, który odzacza się specjalną rolą na boisku (rozgrywający). Największym zaskoczeniem eksperymentu okazało się wykorzystanie innej niż przedstawionej podczas laboratoriów metody klasteryzacji. Pomimo swoich wad, przy odpowiednich danych, jest w stanie konkurować z innymi alogrytmami klasyfikującymi.
 
 %----------------------------------------------------------------------------------------
 %	REFERENCE LIST
@@ -239,17 +296,30 @@ Na wykresie \textit{(Rysunek 2)} został przedstawiony czas działania algorytmu
 
 \begin{thebibliography}{99} % Bibliography - this is intentionally simple in this template
 
-\bibitem[Zasoby online]{a}
-\newblock {\em Algorytmy genetyczne }, dostęp online:
-\newblock \url{http://home.agh.edu.pl/~vlsi/AI/gen_t/}
- 
-\bibitem[Zasoby online]{b}
-\newblock {\em Introduction to Genetic Algorithm \& their application in data science }, dostęp online:
-\newblock \url{https://www.analyticsvidhya.com/blog/2017/07/introduction-to-genetic-algorithm/} 
+\bibitem[Zbiór danych]{b}
+\newblock {\em NBA Players stats since 1950}, dostęp online:
+\newblock \url{https://www.kaggle.com/drgilermo/nba-players-stats} 
 
-\bibitem[Kazuo Sugihara]{b}
-\newblock {\em Measures for Performance Evaluation of Genetic Algorithms }, dostęp online:
-\newblock \url{http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.49.8611&rep=rep1&type=pdf} 
+\bibitem[Zasoby online]{a}
+\newblock {\em Sensitivity and specificity }, dostęp online:
+\newblock \url{https://en.wikipedia.org/wiki/Sensitivity_and_specificity}
+
+\bibitem[Zasoby online]{b}
+\newblock {\em How to understand the drawbacks of K-means }, dostęp online:
+\newblock \url{https://stats.stackexchange.com/questions/133656/how-to-understand-the-drawbacks-of-k-means} 
+
+\bibitem[Zasoby online]{b}
+\newblock {\em Hierarchical Clustering }, dostęp online:
+\newblock \url{https://en.wikipedia.org/wiki/Hierarchical_clustering} 
+
+\bibitem[Fionn Murtagh, Pierre Legendre]{b}
+\newblock {\em Ward’s Hierarchical Agglomerative Clustering Method:
+Which Algorithms Implement Ward’s Criterion? }, dostęp online:
+\newblock \url{hhttp://adn.biol.umontreal.ca/~numericalecology/Reprints/Murtagh_Legendre_J_Class_2014.pdf} 
+
+\bibitem[Zasoby online]{b}
+\newblock {\em Hierarchical Clustering documentation }, dostęp online:
+\newblock \url{https://stat.ethz.ch/R-manual/R-devel/library/stats/html/hclust.html}
 \end{thebibliography}
 
 %----------------------------------------------------------------------------------------
